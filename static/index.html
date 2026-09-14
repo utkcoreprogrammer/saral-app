@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Saral Yojana — Sarkari schemes, aasaan bhasha mein</title>
+<style>
+  :root {
+    --saffron: #FF6B35;
+    --indigo: #1A237E;
+    --cream: #FFF8F0;
+    --card-bg: #ffffff;
+    --green: #2E7D32;
+    --border: #E0E0E0;
+    --shadow: 0 2px 8px rgba(0,0,0,0.08);
+    --radius: 12px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Segoe UI',system-ui,-apple-system,sans-serif; background:var(--cream); color:#333; line-height:1.6; min-height:100vh; }
+
+  /* Header */
+  header { background:linear-gradient(135deg,var(--indigo),var(--saffron)); color:white; padding:2rem 1rem; text-align:center; }
+  header h1 { font-size:2rem; margin-bottom:0.3rem; }
+  header p { font-size:1.1rem; opacity:0.92; }
+
+  /* Nav tabs */
+  .nav-tabs { display:flex; justify-content:center; gap:0; max-width:900px; margin:-1.5rem auto 1.5rem; padding:0 1rem; }
+  .nav-tab { background:white; border:none; padding:0.7rem 1.5rem; font-size:1rem; cursor:pointer; color:#666; border-bottom:3px solid transparent; transition:all 0.2s; }
+  .nav-tab:first-child { border-radius:0 0 0 8px; }
+  .nav-tab:last-child { border-radius:0 0 8px 0; }
+  .nav-tab.active { color:var(--saffron); border-bottom-color:var(--saffron); font-weight:600; }
+  .nav-tab:hover { background:#f5f5f5; }
+
+  .container { max-width:900px; margin:0 auto; padding:1.5rem; padding-bottom:3rem; }
+
+  /* Tabs */
+  .tab-content { display:none; }
+  .tab-content.active { display:block; }
+
+  /* Cards */
+  .form-card { background:var(--card-bg); border-radius:var(--radius); box-shadow:var(--shadow); padding:2rem; margin-bottom:1.5rem; }
+  .answer-card { background:var(--card-bg); border-radius:var(--radius); box-shadow:var(--shadow); padding:2rem; margin-bottom:1.5rem; }
+
+  label { display:block; font-weight:600; margin-bottom:0.4rem; color:var(--indigo); }
+  input[type="url"], input[type="text"], select, textarea {
+    width:100%; padding:0.7rem; border:2px solid var(--border); border-radius:8px; font-size:1rem; transition:border 0.2s;
+  }
+  input:focus, select:focus, textarea:focus { border-color:var(--saffron); outline:none; }
+  .field { margin-bottom:1.2rem; }
+  .row { display:flex; gap:1rem; flex-wrap:wrap; }
+  .row .field { flex:1; min-width:180px; }
+
+  /* Voice gender toggle */
+  .gender-toggle { display:flex; gap:0.5rem; }
+  .gender-btn { flex:1; padding:0.8rem; border:2px solid var(--border); border-radius:8px; background:white; cursor:pointer; font-size:1rem; transition:all 0.2s; text-align:center; }
+  .gender-btn.active { border-color:var(--saffron); background:#FFF3E0; color:var(--saffron); font-weight:600; }
+  .gender-btn .icon { font-size:1.3rem; display:block; margin-bottom:0.2rem; }
+
+  /* Buttons */
+  .btn { background:var(--saffron); color:white; border:none; padding:0.9rem 2rem; font-size:1.1rem; border-radius:8px; cursor:pointer; width:100%; font-weight:600; transition:background 0.2s,transform 0.1s; }
+  .btn:hover { background:#E55A2B; }
+  .btn:active { transform:scale(0.98); }
+  .btn:disabled { background:#ccc; cursor:not-allowed; }
+  .btn.secondary { background:white; color:var(--indigo); border:2px solid var(--indigo); }
+  .btn.secondary:hover { background:var(--indigo); color:white; }
+
+  /* Spinner */
+  .spinner { display:inline-block; width:20px; height:20px; border:3px solid rgba(255,255,255,0.3); border-radius:50%; border-top-color:white; animation:spin 0.8s linear infinite; margin-right:8px; vertical-align:middle; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+
+  /* Pipeline */
+  .pipeline { display:none; background:var(--card-bg); border-radius:var(--radius); box-shadow:var(--shadow); padding:1rem 1.5rem; margin-bottom:1.5rem; }
+  .pipeline.visible { display:block; }
+  .pipeline ol { list-style:none; counter-reset:step; }
+  .pipeline li { counter-increment:step; padding:0.5rem 0 0.5rem 2.5rem; position:relative; color:#999; transition:color 0.3s; }
+  .pipeline li::before { content:counter(step); position:absolute; left:0; top:0.5rem; width:24px; height:24px; background:#eee; color:#999; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:0.85rem; transition:background 0.3s,color 0.3s; }
+  .pipeline li.active { color:var(--indigo); font-weight:600; }
+  .pipeline li.active::before { background:var(--indigo); color:white; }
+  .pipeline li.done { color:var(--green); }
+  .pipeline li.done::before { background:var(--green); color:white; content:"✓"; }
+
+  /* Results */
+  .results { display:none; }
+  .results.visible { display:block; }
+  .results h2 { color:var(--indigo); margin-bottom:1rem; font-size:1.3rem; }
+
+  .answer-text { white-space:pre-wrap; font-size:1.05rem; line-height:1.8; color:#333; }
+
+  /* Voice-first: audio is primary */
+  .voice-player { background:linear-gradient(135deg,#FFF3E0,#FFF8F0); border-radius:var(--radius); padding:1.5rem; margin-bottom:1rem; text-align:center; }
+  .voice-player h3 { color:var(--saffron); margin-bottom:0.5rem; }
+  .voice-player .speaker-badge { display:inline-block; background:white; border:1px solid var(--saffron); color:var(--saffron); padding:0.2rem 0.8rem; border-radius:20px; font-size:0.85rem; margin-bottom:0.8rem; }
+  audio { width:100%; margin-top:0.5rem; }
+
+  /* Source cards */
+  .source-grid { display:grid; gap:1rem; }
+  .source-card { background:var(--card-bg); border-radius:var(--radius); box-shadow:var(--shadow); padding:1.2rem; border-left:4px solid var(--saffron); }
+  .source-card h3 { font-size:1rem; margin-bottom:0.3rem; }
+  .source-card h3 a { color:var(--indigo); text-decoration:none; }
+  .source-card h3 a:hover { text-decoration:underline; }
+  .source-card p { font-size:0.9rem; color:#666; }
+  .source-card .host { font-size:0.8rem; color:var(--saffron); margin-top:0.3rem; }
+
+  /* Scholarship presets */
+  .preset-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:1rem; margin-bottom:1.5rem; }
+  .preset-card { background:white; border:2px solid var(--border); border-radius:10px; padding:1.2rem; cursor:pointer; transition:all 0.2s; }
+  .preset-card:hover { border-color:var(--saffron); background:#FFF3E0; transform:translateY(-2px); box-shadow:var(--shadow); }
+  .preset-card .level-badge { display:inline-block; padding:0.2rem 0.6rem; border-radius:12px; font-size:0.75rem; font-weight:600; margin-bottom:0.5rem; }
+  .level-badge.ug { background:#E3F2FD; color:#1565C0; }
+  .level-badge.pg { background:#F3E5F5; color:#7B1FA2; }
+  .level-badge.both { background:#E8F5E9; color:#2E7D32; }
+  .preset-card h4 { font-size:0.95rem; color:var(--indigo); }
+
+  /* Appointment */
+  .appointment-info { background:var(--card-bg); border-radius:var(--radius); box-shadow:var(--shadow); padding:2rem; margin-bottom:1.5rem; }
+  .appointment-info h2 { color:var(--indigo); margin-bottom:1rem; }
+  .address-block { background:#F5F5F5; border-radius:8px; padding:1rem; margin:1rem 0; }
+  .address-block p { margin:0.2rem 0; }
+  .address-block .label { font-weight:600; color:var(--indigo); }
+  .slots-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(80px,1fr)); gap:0.5rem; margin:1rem 0; }
+  .slot-btn { padding:0.6rem; border:2px solid var(--border); border-radius:8px; background:white; cursor:pointer; text-align:center; font-size:0.95rem; transition:all 0.2s; }
+  .slot-btn:hover { border-color:var(--saffron); }
+  .slot-btn.selected { border-color:var(--saffron); background:var(--saffron); color:white; font-weight:600; }
+  .slot-btn:disabled { opacity:0.4; cursor:not-allowed; text-decoration:line-through; }
+
+  /* Confirmation */
+  .confirmation { background:#E8F5E9; border:2px solid var(--green); border-radius:var(--radius); padding:2rem; text-align:center; margin-bottom:1.5rem; }
+  .confirmation .check { font-size:3rem; margin-bottom:0.5rem; }
+  .confirmation h2 { color:var(--green); }
+
+  /* Error */
+  .error { background:#FFEBEE; border-left:4px solid #C62828; color:#C62828; padding:1rem 1.5rem; border-radius:8px; margin-bottom:1.5rem; display:none; }
+  .error.visible { display:block; }
+
+  /* Footer */
+  footer { text-align:center; padding:2rem 1rem; color:#888; font-size:0.85rem; }
+  footer a { color:var(--indigo); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🕊️ Saral Yojana</h1>
+  <p>Sarkari schemes, aasaan bhasha mein — now with voice</p>
+</header>
+
+<!-- Nav tabs -->
+<div class="nav-tabs">
+  <button class="nav-tab active" onclick="switchTab('explain')">📖 Explain a Scheme</button>
+  <button class="nav-tab" onclick="switchTab('scholarships')">🎓 Scholarships</button>
+  <button class="nav-tab" onclick="switchTab('appointment')">📅 Book Appointment</button>
+</div>
+
+<div class="container">
+
+  <!-- ============ TAB 1: EXPLAIN ============ -->
+  <div class="tab-content active" id="tab-explain">
+
+    <div class="form-card">
+      <div class="field">
+        <label for="url">Scheme page URL</label>
+        <input type="url" id="url" placeholder="https://www.myscheme.gov.in/schemes/pm-svanidhi"
+               value="https://www.myscheme.gov.in/schemes/pm-svanidhi">
+      </div>
+
+      <div class="field">
+        <label for="question">Your question (optional)</label>
+        <input type="text" id="question" placeholder="Am I eligible, and how do I apply?"
+               value="Am I eligible, and how do I apply?">
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label for="lang">Answer language</label>
+          <select id="lang">
+            <option value="hi-IN">Hindi</option>
+            <option value="en-IN">English</option>
+            <option value="ta-IN">Tamil</option>
+            <option value="kn-IN">Kannada</option>
+            <option value="te-IN">Telugu</option>
+            <option value="mr-IN">Marathi</option>
+            <option value="bn-IN">Bengali</option>
+            <option value="gu-IN">Gujarati</option>
+            <option value="ml-IN">Malayalam</option>
+            <option value="pa-IN">Punjabi</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Voice assistant</label>
+          <div class="gender-toggle">
+            <button class="gender-btn active" id="genderFemale" onclick="selectGender('female')">
+              <span class="icon">👩</span> Female Voice
+            </button>
+            <button class="gender-btn" id="genderMale" onclick="selectGender('male')">
+              <span class="icon">👨</span> Male Voice
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn" id="submitBtn" onclick="explain()">
+        🎙️ Explain & Speak →
+      </button>
+    </div>
+
+    <!-- Pipeline progress -->
+    <div class="pipeline" id="pipeline">
+      <ol id="pipeline-list">
+        <li data-stage="scrape">Scraping scheme page (Anakin)</li>
+        <li data-stage="search">Searching for recent references (Anakin)</li>
+        <li data-stage="translate">Simplifying & translating (Sarvam)</li>
+        <li data-stage="tts">Generating spoken answer (Sarvam TTS)</li>
+      </ol>
+    </div>
+
+    <div class="error" id="error"></div>
+
+    <div class="results" id="results">
+      <!-- Voice player (primary) -->
+      <div class="answer-card">
+        <div class="voice-player" id="voicePlayer" style="display:none;">
+          <h3>🔊 Voice Answer</h3>
+          <div class="speaker-badge" id="speakerBadge"></div>
+          <audio id="audioPlayer" controls></audio>
+        </div>
+
+        <h2>📝 Text Answer</h2>
+        <div class="answer-text" id="answerText"></div>
+      </div>
+
+      <div class="answer-card">
+        <h2>🔗 Sources & References</h2>
+        <div class="source-grid" id="sourceGrid"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ============ TAB 2: SCHOLARSHIPS ============ -->
+  <div class="tab-content" id="tab-scholarships">
+
+    <div class="form-card">
+      <h2 style="color:var(--indigo); margin-bottom:0.5rem;">🎓 Scholarship Finder for Students</h2>
+      <p style="color:#666; margin-bottom:1.5rem;">Quick-pick a scholarship scheme for Graduate or PG students. We'll scrape, simplify, and read it out in your language.</p>
+
+      <div class="field">
+        <label>Filter by level</label>
+        <div class="gender-toggle">
+          <button class="gender-btn active" onclick="filterScholarships('all', this)">All</button>
+          <button class="gender-btn" onclick="filterScholarships('Graduate', this)">Graduate</button>
+          <button class="gender-btn" onclick="filterScholarships('Postgraduate', this)">Postgraduate</button>
+        </div>
+      </div>
+
+      <div class="preset-grid" id="scholarshipGrid"></div>
+    </div>
+
+    <!-- When a scholarship is clicked, the explain UI appears here -->
+    <div id="scholarshipExplain" style="display:none;">
+      <div class="form-card">
+        <h2 style="color:var(--indigo); margin-bottom:1rem;" id="scholarshipTitle"></h2>
+
+        <div class="row">
+          <div class="field">
+            <label for="sch-lang">Language</label>
+            <select id="sch-lang">
+              <option value="hi-IN">Hindi</option>
+              <option value="en-IN">English</option>
+              <option value="ta-IN">Tamil</option>
+              <option value="kn-IN">Kannada</option>
+              <option value="te-IN">Telugu</option>
+              <option value="mr-IN">Marathi</option>
+              <option value="bn-IN">Bengali</option>
+              <option value="gu-IN">Gujarati</option>
+              <option value="ml-IN">Malayalam</option>
+              <option value="pa-IN">Punjabi</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Voice</label>
+            <div class="gender-toggle">
+              <button class="gender-btn active" id="schGenderFemale" onclick="selectGenderSch('female')">
+                <span class="icon">👩</span> Female
+              </button>
+              <button class="gender-btn" id="schGenderMale" onclick="selectGenderSch('male')">
+                <span class="icon">👨</span> Male
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn" id="schSubmitBtn" onclick="explainScholarship()">
+          🎙️ Explain & Speak →
+        </button>
+      </div>
+
+      <div class="pipeline" id="sch-pipeline">
+        <ol id="sch-pipeline-list">
+          <li data-stage="scrape">Scraping scheme page (Anakin)</li>
+          <li data-stage="search">Searching for recent references (Anakin)</li>
+          <li data-stage="translate">Simplifying & translating (Sarvam)</li>
+          <li data-stage="tts">Generating spoken answer (Sarvam TTS)</li>
+        </ol>
+      </div>
+
+      <div class="error" id="sch-error"></div>
+
+      <div class="results" id="sch-results">
+        <div class="answer-card">
+          <div class="voice-player" id="sch-voicePlayer" style="display:none;">
+            <h3>🔊 Voice Answer</h3>
+            <div class="speaker-badge" id="sch-speakerBadge"></div>
+            <audio id="sch-audioPlayer" controls></audio>
+          </div>
+          <h2>📝 Text Answer</h2>
+          <div class="answer-text" id="sch-answerText"></div>
+        </div>
+        <div class="answer-card">
+          <h2>🔗 Sources & References</h2>
+          <div class="source-grid" id="sch-sourceGrid"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ============ TAB 3: APPOINTMENT ============ -->
+  <div class="tab-content" id="tab-appointment">
+
+    <div class="appointment-info">
+      <h2>📅 Book an In-Person Appointment</h2>
+      <p style="color:#666; margin-bottom:1rem;">Visit our Bengaluru office for face-to-face assistance with scheme applications, scholarship help, or document support.</p>
+
+      <div class="address-block">
+        <p><span class="label">📍 Address:</span></p>
+        <p id="addr-line1"></p>
+        <p id="addr-line2"></p>
+        <p id="addr-area"></p>
+        <p id="addr-city"></p>
+        <p><span class="label">📞 Phone:</span> <span id="addr-phone"></span></p>
+        <p><span class="label">✉️ Email:</span> <span id="addr-email"></span></p>
+        <p style="margin-top:0.5rem;"><a href="#" id="addr-maps" target="_blank">View on Google Maps →</a></p>
+      </div>
+    </div>
+
+    <div class="form-card" id="appointmentForm">
+      <div class="field">
+        <label for="apt-name">Full Name</label>
+        <input type="text" id="apt-name" placeholder="Your name">
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label for="apt-phone">Phone Number</label>
+          <input type="text" id="apt-phone" placeholder="10-digit mobile number">
+        </div>
+        <div class="field">
+          <label for="apt-email">Email (optional)</label>
+          <input type="text" id="apt-email" placeholder="you@email.com">
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label for="apt-date">Preferred Date</label>
+          <input type="date" id="apt-date">
+        </div>
+        <div class="field">
+          <label for="apt-lang">Preferred Language</label>
+          <select id="apt-lang">
+            <option value="en-IN">English</option>
+            <option value="hi-IN">Hindi</option>
+            <option value="kn-IN">Kannada</option>
+            <option value="ta-IN">Tamil</option>
+            <option value="te-IN">Telugu</option>
+            <option value="mr-IN">Marathi</option>
+            <option value="bn-IN">Bengali</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Select a Time Slot</label>
+        <div class="slots-grid" id="slotsGrid"></div>
+      </div>
+
+      <div class="field">
+        <label for="apt-notes">Notes (optional)</label>
+        <textarea id="apt-notes" rows="3" placeholder="What scheme or scholarship do you need help with?"></textarea>
+      </div>
+
+      <button class="btn" id="bookBtn" onclick="bookAppointment()">
+        📅 Confirm Appointment
+      </button>
+    </div>
+
+    <!-- Confirmation -->
+    <div class="confirmation" id="confirmation" style="display:none;">
+      <div class="check">✅</div>
+      <h2>Appointment Confirmed!</h2>
+      <p id="confirmDetails" style="margin:1rem 0;"></p>
+      <p style="color:#666; font-size:0.9rem;" id="confirmOffice"></p>
+      <p style="margin-top:1rem;">
+        <button class="btn secondary" onclick="resetAppointment()" style="width:auto;">Book Another</button>
+      </p>
+    </div>
+
+    <div class="error" id="apt-error"></div>
+
+  </div>
+
+</div>
+
+<footer>
+  Built with <a href="https://sarvam.ai" target="_blank">Sarvam.ai</a> + <a href="https://anakin.io" target="_blank">Anakin.io</a> · AI Engineer Mixer · Bengaluru
+</footer>
+
+<script>
+// ── State ──
+let currentGender = 'female';
+let currentGenderSch = 'female';
+let selectedScholarship = null;
+let selectedSlot = null;
+
+// ── Tab switching ──
+function switchTab(tab) {
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('tab-' + tab).classList.add('active');
+}
+
+// ── Gender selection (explain tab) ──
+function selectGender(g) {
+  currentGender = g;
+  document.getElementById('genderFemale').classList.toggle('active', g === 'female');
+  document.getElementById('genderMale').classList.toggle('active', g === 'male');
+}
+
+function selectGenderSch(g) {
+  currentGenderSch = g;
+  document.getElementById('schGenderFemale').classList.toggle('active', g === 'female');
+  document.getElementById('schGenderMale').classList.toggle('active', g === 'male');
+}
+
+// ── Pipeline helpers ──
+function setStage(container, stage, state) {
+  const li = document.querySelector(`#${container} li[data-stage="${stage}"]`);
+  if (!li) return;
+  li.classList.remove('active', 'done');
+  if (state) li.classList.add(state);
+}
+function showPipeline(id, show) { document.getElementById(id).classList.toggle('visible', show); }
+function showError(id, msg) { const el = document.getElementById(id); el.textContent = msg; el.classList.add('visible'); }
+function hideError(id) { document.getElementById(id).classList.remove('visible'); }
+function getHost(url) { try { return new URL(url).hostname.replace('www.',''); } catch { return ''; } }
+
+// ── Explain (main tab) ──
+async function explain() {
+  const url = document.getElementById('url').value.trim();
+  const question = document.getElementById('question').value.trim();
+  const lang = document.getElementById('lang').value;
+
+  if (!url) { showError('error', 'Please enter a scheme page URL.'); return; }
+
+  hideError('error');
+  document.getElementById('results').classList.remove('visible');
+  document.getElementById('voicePlayer').style.display = 'none';
+  ['scrape','search','translate','tts'].forEach(s => setStage('pipeline-list', s, ''));
+  showPipeline('pipeline', true);
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Working...';
+  setStage('pipeline-list','scrape','active');
+
+  try {
+    const resp = await fetch('/api/explain', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url, question, target_language: lang, voice_gender: currentGender })
+    });
+
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({ detail: 'Unknown error' }));
+      throw new Error(err.detail || `Server error (${resp.status})`);
+    }
+
+    const data = await resp.json();
+
+    setStage('pipeline-list','scrape','done');
+    setStage('pipeline-list','search','done');
+    setStage('pipeline-list','translate','done');
+    setStage('pipeline-list','tts', data.audio_base64 ? 'done' : '');
+
+    document.getElementById('answerText').textContent = data.simplified_text || '(No answer generated)';
+
+    // Source cards
+    const grid = document.getElementById('sourceGrid');
+    grid.innerHTML = '';
+    if (data.source_cards && data.source_cards.length > 0) {
+      data.source_cards.forEach(s => {
+        const card = document.createElement('div');
+        card.className = 'source-card';
+        const host = getHost(s.url);
+        card.innerHTML = `<h3><a href="${s.url}" target="_blank">${s.title || 'Source'}</a></h3><p>${s.snippet || ''}</p>${host ? `<div class="host">${host}</div>` : ''}`;
+        grid.appendChild(card);
+      });
+    } else {
+      grid.innerHTML = '<p style="color:#999;">No additional references found.</p>';
+    }
+
+    // Voice player (primary)
+    if (data.audio_base64) {
+      const audio = document.getElementById('audioPlayer');
+      audio.src = 'data:audio/wav;base64,' + data.audio_base64;
+      const genderLabel = data.voice_gender === 'male' ? 'Male' : 'Female';
+      document.getElementById('speakerBadge').textContent = `${genderLabel} voice: ${data.speaker_used}`;
+      document.getElementById('voicePlayer').style.display = 'block';
+    }
+
+    document.getElementById('results').classList.add('visible');
+
+  } catch (e) {
+    showError('error', e.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '🎙️ Explain & Speak →';
+    setTimeout(() => showPipeline('pipeline', false), 2000);
+  }
+}
+
+// ── Scholarships tab ──
+async function loadScholarships(filter = 'all') {
+  try {
+    const resp = await fetch(`/api/scholarships?level=${filter}`);
+    const data = await resp.json();
+    const grid = document.getElementById('scholarshipGrid');
+    grid.innerHTML = '';
+    data.forEach(s => {
+      const card = document.createElement('div');
+      card.className = 'preset-card';
+      const levelClass = s.level === 'Graduate' ? 'ug' : s.level === 'Postgraduate' ? 'pg' : 'both';
+      card.innerHTML = `
+        <span class="level-badge ${levelClass}">${s.level}</span>
+        <h4>${s.title}</h4>
+      `;
+      card.onclick = () => selectScholarship(s);
+      grid.appendChild(card);
+    });
+  } catch (e) {
+    console.error('Failed to load scholarships', e);
+  }
+}
+
+function filterScholarships(level, btn) {
+  event.stopPropagation();
+  document.querySelectorAll('#tab-scholarships .gender-toggle .gender-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  loadScholarships(level);
+}
+
+function selectScholarship(s) {
+  selectedScholarship = s;
+  document.getElementById('scholarshipTitle').textContent = s.title;
+  document.getElementById('scholarshipExplain').style.display = 'block';
+  document.getElementById('sch-results').classList.remove('visible');
+}
+
+async function explainScholarship() {
+  if (!selectedScholarship) return;
+
+  hideError('sch-error');
+  document.getElementById('sch-results').classList.remove('visible');
+  document.getElementById('sch-voicePlayer').style.display = 'none';
+  ['scrape','search','translate','tts'].forEach(s => setStage('sch-pipeline-list', s, ''));
+  showPipeline('sch-pipeline', true);
+
+  const btn = document.getElementById('schSubmitBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Working...';
+  setStage('sch-pipeline-list','scrape','active');
+
+  try {
+    const resp = await fetch('/api/explain', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        url: selectedScholarship.url,
+        question: selectedScholarship.question,
+        target_language: document.getElementById('sch-lang').value,
+        voice_gender: currentGenderSch
+      })
+    });
+
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({ detail: 'Unknown error' }));
+      throw new Error(err.detail || `Server error (${resp.status})`);
+    }
+
+    const data = await resp.json();
+
+    setStage('sch-pipeline-list','scrape','done');
+    setStage('sch-pipeline-list','search','done');
+    setStage('sch-pipeline-list','translate','done');
+    setStage('sch-pipeline-list','tts', data.audio_base64 ? 'done' : '');
+
+    document.getElementById('sch-answerText').textContent = data.simplified_text || '(No answer generated)';
+
+    const grid = document.getElementById('sch-sourceGrid');
+    grid.innerHTML = '';
+    if (data.source_cards && data.source_cards.length > 0) {
+      data.source_cards.forEach(s => {
+        const card = document.createElement('div');
+        card.className = 'source-card';
+        const host = getHost(s.url);
+        card.innerHTML = `<h3><a href="${s.url}" target="_blank">${s.title || 'Source'}</a></h3><p>${s.snippet || ''}</p>${host ? `<div class="host">${host}</div>` : ''}`;
+        grid.appendChild(card);
+      });
+    } else {
+      grid.innerHTML = '<p style="color:#999;">No additional references found.</p>';
+    }
+
+    if (data.audio_base64) {
+      const audio = document.getElementById('sch-audioPlayer');
+      audio.src = 'data:audio/wav;base64,' + data.audio_base64;
+      const genderLabel = data.voice_gender === 'male' ? 'Male' : 'Female';
+      document.getElementById('sch-speakerBadge').textContent = `${genderLabel} voice: ${data.speaker_used}`;
+      document.getElementById('sch-voicePlayer').style.display = 'block';
+    }
+
+    document.getElementById('sch-results').classList.add('visible');
+
+  } catch (e) {
+    showError('sch-error', e.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '🎙️ Explain & Speak →';
+    setTimeout(() => showPipeline('sch-pipeline', false), 2000);
+  }
+}
+
+// ── Appointment tab ──
+async function loadSlots() {
+  try {
+    const resp = await fetch('/api/appointments/slots');
+    const data = await resp.json();
+
+    // Fill address
+    const a = data.address;
+    document.getElementById('addr-line1').textContent = a.line1;
+    document.getElementById('addr-line2').textContent = a.line2;
+    document.getElementById('addr-area').textContent = a.area;
+    document.getElementById('addr-city').textContent = `${a.city}, ${a.state} ${a.pincode}`;
+    document.getElementById('addr-phone').textContent = a.phone;
+    document.getElementById('addr-email').textContent = a.email;
+    document.getElementById('addr-maps').href = a.maps_url;
+
+    // Fill slots
+    const grid = document.getElementById('slotsGrid');
+    grid.innerHTML = '';
+    data.slots.forEach(slot => {
+      const btn = document.createElement('button');
+      btn.className = 'slot-btn';
+      btn.textContent = slot;
+      btn.onclick = () => selectSlot(slot, btn);
+      grid.appendChild(btn);
+    });
+
+    // Set min date to tomorrow
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    document.getElementById('apt-date').min = tomorrow.toISOString().split('T')[0];
+  } catch (e) {
+    console.error('Failed to load slots', e);
+  }
+}
+
+function selectSlot(slot, btn) {
+  selectedSlot = slot;
+  document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+async function bookAppointment() {
+  const name = document.getElementById('apt-name').value.trim();
+  const phone = document.getElementById('apt-phone').value.trim();
+  const email = document.getElementById('apt-email').value.trim();
+  const date = document.getElementById('apt-date').value;
+  const lang = document.getElementById('apt-lang').value;
+  const notes = document.getElementById('apt-notes').value.trim();
+
+  hideError('apt-error');
+
+  if (!name) { showError('apt-error', 'Please enter your name.'); return; }
+  if (!phone || phone.length < 10) { showError('apt-error', 'Please enter a valid phone number.'); return; }
+  if (!date) { showError('apt-error', 'Please select a date.'); return; }
+  if (!selectedSlot) { showError('apt-error', 'Please select a time slot.'); return; }
+
+  const btn = document.getElementById('bookBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Booking...';
+
+  try {
+    const resp = await fetch('/api/appointments/book', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, phone, email, date, slot: selectedSlot, language: lang, notes })
+    });
+
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({ detail: 'Unknown error' }));
+      throw new Error(err.detail || `Server error (${resp.status})`);
+    }
+
+    const data = await resp.json();
+
+    // Show confirmation
+    document.getElementById('appointmentForm').style.display = 'none';
+    const conf = document.getElementById('confirmation');
+    conf.style.display = 'block';
+
+    document.getElementById('confirmDetails').textContent =
+      `${data.name}, your appointment is confirmed for ${data.date} at ${data.slot}. Booking ID: ${data.booking_id}`;
+
+    const a = data.office;
+    document.getElementById('confirmOffice').textContent =
+      `Visit: ${a.line1}, ${a.line2}, ${a.area}, ${a.city}, ${a.state} ${a.pincode}`;
+
+  } catch (e) {
+    showError('apt-error', e.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '📅 Confirm Appointment';
+  }
+}
+
+function resetAppointment() {
+  document.getElementById('confirmation').style.display = 'none';
+  document.getElementById('appointmentForm').style.display = 'block';
+  document.getElementById('apt-name').value = '';
+  document.getElementById('apt-phone').value = '';
+  document.getElementById('apt-email').value = '';
+  document.getElementById('apt-notes').value = '';
+  document.getElementById('apt-date').value = '';
+  selectedSlot = null;
+  document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('selected'));
+}
+
+// ── Init ──
+loadScholarships('all');
+loadSlots();
+</script>
+
+</body>
+</html>
