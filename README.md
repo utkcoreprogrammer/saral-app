@@ -30,6 +30,18 @@ Built for the **AI Engineer Mixer** hackathon using **Sarvam.ai** + **Anakin.io*
 
 ---
 
+## About this project
+
+Saral Yojana is a voice-first civic-tech assistant that makes Indian government schemes easier to understand and access. It combines live web content retrieval, multilingual simplification, and text-to-speech so users can receive scheme guidance in their preferred Indian language and voice. The app also includes scholarship discovery for graduate and postgraduate students and appointment booking for in-person assistance.
+
+This project was built for the AI Engineer Mixer hackathon using **FastAPI**, **Sarvam.ai**, and **Anakin.io**.
+
+## Resume
+
+[Download Utkarsh Shukla's resume](docs/Utkarsh-Shukla-Resume.pdf)
+
+---
+
 ## Quick start
 
 ### 1. Install dependencies
